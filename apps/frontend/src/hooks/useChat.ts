@@ -1,7 +1,7 @@
 "use client";
 import { useChatStore } from "./useChatStore";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = "https://research-copilot-production.up.railway.app";
 
 export function useChat() {
   const store = useChatStore();
