@@ -19,9 +19,6 @@ Structure the report as:
 ## Conclusion & Recommendations
 (Summary and next steps)
 
-## Sources
-(References if available)
-
 Use proper markdown formatting, bullet points, and headers. Make it professional and readable.
 """
 
