@@ -1,9 +1,37 @@
 import os
+import hashlib
 import fitz  # PyMuPDF
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import chromadb
 from src.core.config import settings
 
+
+class HashEmbeddingFunction:
+    """Offline, local embedding (bag-of-words hashing).
+
+    ChromaDB's default onnx embedding downloads a model from HuggingFace on
+    first use, which fails on servers without access to HF. This replacement
+    needs no network and minimal memory, at the cost of semantic quality.
+    """
+
+    def __init__(self, dim: int = 384):
+        self.dim = dim
+
+    def __call__(self, input):
+        embeddings = []
+        for text in input:
+            vec = [0.0] * self.dim
+            for token in text.lower().split():
+                h = int(hashlib.md5(token.encode("utf-8")).hexdigest(), 16)
+                vec[h % self.dim] += 1.0
+            norm = sum(v * v for v in vec) ** 0.5
+            if norm > 0:
+                vec = [v / norm for v in vec]
+            embeddings.append(vec)
+        return embeddings
+
+
+hash_embedding = HashEmbeddingFunction()
 
 chroma_client = chromadb.PersistentClient(path=settings.CHROMA_PERSIST_DIR)
 
@@ -27,7 +55,10 @@ def chunk_text(text: str, chunk_size: int = 500, chunk_overlap: int = 50) -> lis
 
 
 def store_chunks(session_id: str, chunks: list, filename: str):
-    collection = chroma_client.get_or_create_collection(name=f"session_{session_id}")
+    collection = chroma_client.get_or_create_collection(
+        name=f"session_{session_id}",
+        embedding_function=hash_embedding,
+    )
 
     ids = [f"{filename}_chunk_{i}" for i in range(len(chunks))]
     metadatas = [{"filename": filename, "chunk_index": i} for i in range(len(chunks))]
@@ -38,7 +69,10 @@ def store_chunks(session_id: str, chunks: list, filename: str):
 
 def retrieve_documents(session_id: str, query: str, n_results: int = 3) -> str:
     try:
-        collection = chroma_client.get_collection(name=f"session_{session_id}")
+        collection = chroma_client.get_collection(
+            name=f"session_{session_id}",
+            embedding_function=hash_embedding,
+        )
     except Exception:
         return ""
 
