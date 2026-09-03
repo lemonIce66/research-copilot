@@ -21,9 +21,20 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> List[str]:
-        if self.CORS_ORIGINS == "*":
+        raw = (self.CORS_ORIGINS or "").strip()
+        if raw in ("", "*"):
             return ["*"]
-        return [o.strip() for o in self.CORS_ORIGINS.split(",")]
+        # Support both JSON array ("[\"http://a.com\"]") and comma-separated ("http://a.com,http://b.com")
+        if raw.startswith("["):
+            try:
+                import json
+
+                parsed = json.loads(raw)
+                if isinstance(parsed, list):
+                    return [str(o).strip() for o in parsed if str(o).strip()]
+            except (ValueError, TypeError):
+                pass
+        return [o.strip() for o in raw.split(",") if o.strip()]
 
     class Config:
         env_file = ".env"
