@@ -15,7 +15,7 @@ User Query → Supervisor → Researcher (Tavily Search)
 
 - **Backend**: Python 3.11+, FastAPI, LangGraph, ChromaDB
 - **Frontend**: Next.js 15, Tailwind CSS, Zustand, React Markdown
-- **LLM**: DeepSeek-V3 (OpenAI-compatible API)
+- **LLM**: DeepSeek-V4-pro (OpenAI-compatible API)
 - **Search**: Tavily Search API
 - **Vector DB**: ChromaDB (local)
 
