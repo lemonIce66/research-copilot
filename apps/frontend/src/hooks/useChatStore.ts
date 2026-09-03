@@ -1,5 +1,18 @@
 import { create } from "zustand";
 
+// crypto.randomUUID only exists in secure contexts (HTTPS / localhost).
+// Fall back to a random ID when served over plain HTTP, e.g. http://<server-ip>.
+function generateId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export interface Message {
   id: string;
   role: "user" | "assistant";
@@ -43,7 +56,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set((state) => ({
       messages: [
         ...state.messages,
-        { ...msg, id: crypto.randomUUID(), timestamp: Date.now() },
+        { ...msg, id: generateId(), timestamp: Date.now() },
       ],
     })),
 
