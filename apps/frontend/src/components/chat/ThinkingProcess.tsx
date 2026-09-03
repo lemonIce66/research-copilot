@@ -1,12 +1,6 @@
 "use client";
 import { AgentStep } from "@/hooks/useChatStore";
-
-const agentLabels: Record<string, string> = {
-  supervisor: "Supervisor is analyzing the task...",
-  researcher: "Researcher is searching the web...",
-  analyst: "Analyst is analyzing findings...",
-  writer: "Writer is compiling the report...",
-};
+import { useTranslation } from "@/lib/i18n";
 
 const agentColors: Record<string, string> = {
   supervisor: "text-purple-400",
@@ -22,6 +16,15 @@ export function ThinkingProcess({
   steps: AgentStep[];
   currentAgent: string | null;
 }) {
+  const t = useTranslation();
+
+  const agentLabels: Record<string, string> = {
+    supervisor: t.supervisorThinking,
+    researcher: t.researcherThinking,
+    analyst: t.analystThinking,
+    writer: t.writerThinking,
+  };
+
   if (steps.length === 0) return null;
 
   return (

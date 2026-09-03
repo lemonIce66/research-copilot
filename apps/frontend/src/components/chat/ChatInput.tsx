@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, FormEvent, KeyboardEvent } from "react";
 import { Send, Paperclip, Loader2 } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -9,6 +10,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ onSend, onUpload, isLoading }: ChatInputProps) {
+  const t = useTranslation();
   const [input, setInput] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -36,7 +38,7 @@ export function ChatInput({ onSend, onUpload, isLoading }: ChatInputProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-end gap-2 p-4 border-t border-border bg-background">
+    <form onSubmit={handleSubmit} className="flex items-center gap-2 p-4 border-t border-border bg-background">
       <input
         type="file"
         ref={fileInputRef}
@@ -49,7 +51,7 @@ export function ChatInput({ onSend, onUpload, isLoading }: ChatInputProps) {
         type="button"
         onClick={() => fileInputRef.current?.click()}
         className="flex-shrink-0 p-2.5 rounded-lg border border-border hover:bg-accent transition-colors"
-        title="Upload PDF"
+        title={t.uploadPdf}
       >
         <Paperclip size={18} className="text-muted-foreground" />
       </button>
@@ -59,7 +61,7 @@ export function ChatInput({ onSend, onUpload, isLoading }: ChatInputProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask me to research anything... (Shift+Enter for new line)"
+          placeholder={t.placeholder}
           rows={1}
           className="w-full resize-none rounded-lg border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground"
           style={{ minHeight: "44px", maxHeight: "120px" }}

@@ -32,6 +32,7 @@ interface ChatState {
   isLoading: boolean;
   currentAgent: string | null;
   darkMode: boolean;
+  language: "zh" | "en";
   sessionId: string;
 
   addMessage: (msg: Omit<Message, "id" | "timestamp">) => void;
@@ -41,6 +42,7 @@ interface ChatState {
   setLoading: (loading: boolean) => void;
   setCurrentAgent: (agent: string | null) => void;
   toggleDarkMode: () => void;
+  toggleLanguage: () => void;
   clearChat: () => void;
   setSessionId: (id: string) => void;
 }
@@ -51,6 +53,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isLoading: false,
   currentAgent: null,
   darkMode: true,
+  language: "zh",
   sessionId: "default",
 
   addMessage: (msg) =>
@@ -90,6 +93,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setLoading: (isLoading) => set({ isLoading }),
   setCurrentAgent: (currentAgent) => set({ currentAgent }),
   toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
+  toggleLanguage: () =>
+    set((state) => ({ language: state.language === "zh" ? "en" : "zh" })),
 
   clearChat: () =>
     set({
