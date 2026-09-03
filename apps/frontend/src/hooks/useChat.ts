@@ -56,6 +56,7 @@ export function useChat() {
                 store.appendToLastMessage(event.content);
                 break;
               case "report":
+                store.replaceLastMessage(event.content);
                 break;
               case "done":
                 store.setCurrentAgent(null);

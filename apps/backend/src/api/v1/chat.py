@@ -27,9 +27,11 @@ async def chat_stream(request: Request):
         "report": "",
         "context_docs": context_docs,
         "iteration": 0,
+        "sources": [],
     }
 
     async def event_generator():
+        current_node = ""
         try:
             async for event in graph.astream_events(initial_state, version="v2"):
                 kind = event.get("event", "")
@@ -37,9 +39,14 @@ async def chat_stream(request: Request):
                 if kind == "on_chain_start":
                     node_name = event.get("name", "")
                     if node_name in ("supervisor", "researcher", "analyst", "writer"):
+                        current_node = node_name
                         yield f"data: {json.dumps({'type': 'step', 'agent': node_name})}\n\n"
 
                 elif kind == "on_chat_model_stream":
+                    # Only stream the writer's output as the visible report;
+                    # researcher/analyst/supervisor output stays behind the scenes.
+                    if current_node != "writer":
+                        continue
                     chunk = event.get("data", {}).get("chunk", None)
                     if chunk and hasattr(chunk, "content") and chunk.content:
                         yield f"data: {json.dumps({'type': 'token', 'content': chunk.content})}\n\n"

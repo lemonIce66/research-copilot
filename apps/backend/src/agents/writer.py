@@ -48,8 +48,14 @@ def writer_node(state: AgentState) -> dict:
 
     response = llm.invoke(messages)
 
+    report = response.content
+    sources = state.get("sources", [])
+    if sources:
+        source_items = [f"{i}. [{s['title']}]({s['url']})" for i, s in enumerate(sources, 1)]
+        report = f"{report}\n\n## Sources\n" + "\n".join(source_items)
+
     return {
-        "messages": [AIMessage(content=response.content, name="writer")],
-        "report": response.content,
+        "messages": [AIMessage(content=report, name="writer")],
+        "report": report,
         "sender": "writer",
     }

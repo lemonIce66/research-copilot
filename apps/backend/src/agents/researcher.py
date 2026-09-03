@@ -24,7 +24,7 @@ def researcher_node(state: AgentState) -> dict:
                 task = msg.content
                 break
 
-    search_results = tavily_search(task)
+    search_results, sources = tavily_search(task)
 
     messages = [
         SystemMessage(content=RESEARCHER_PROMPT),
@@ -36,5 +36,6 @@ def researcher_node(state: AgentState) -> dict:
     return {
         "messages": [AIMessage(content=response.content, name="researcher")],
         "research_results": response.content,
+        "sources": sources,
         "sender": "researcher",
     }

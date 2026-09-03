@@ -36,6 +36,7 @@ interface ChatState {
 
   addMessage: (msg: Omit<Message, "id" | "timestamp">) => void;
   appendToLastMessage: (content: string) => void;
+  replaceLastMessage: (content: string) => void;
   addStep: (agent: string) => void;
   setLoading: (loading: boolean) => void;
   setCurrentAgent: (agent: string | null) => void;
@@ -66,6 +67,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const last = messages[messages.length - 1];
       if (last && last.role === "assistant") {
         last.content += content;
+      }
+      return { messages };
+    }),
+
+  replaceLastMessage: (content) =>
+    set((state) => {
+      const messages = [...state.messages];
+      const last = messages[messages.length - 1];
+      if (last && last.role === "assistant") {
+        last.content = content;
       }
       return { messages };
     }),
