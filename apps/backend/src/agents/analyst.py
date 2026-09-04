@@ -3,9 +3,9 @@ from src.agents.state import AgentState
 from src.services.llm_service import get_llm
 
 ANALYST_PROMPT = """You are an Analyst Agent. Your job is to:
-1. Read and analyze the research findings
+1. Read and analyze the provided content (research findings or an uploaded document)
 2. Extract key insights, patterns, and trends
-3. Identify strengths and weaknesses in the evidence
+3. Identify strengths and weaknesses
 4. Provide a structured analysis
 
 Format your analysis with clear sections:
@@ -22,9 +22,12 @@ def analyst_node(state: AgentState) -> dict:
     research = state.get("research_results", "")
     context_docs = state.get("context_docs", "")
 
-    analysis_input = f"Research findings:\n{research}"
-    if context_docs:
-        analysis_input += f"\n\nAdditional context from uploaded documents:\n{context_docs}"
+    if context_docs and not research:
+        analysis_input = f"Uploaded document content:\n{context_docs}"
+    else:
+        analysis_input = f"Research findings:\n{research}"
+        if context_docs:
+            analysis_input += f"\n\nAdditional context from uploaded documents:\n{context_docs}"
 
     messages = [
         SystemMessage(content=ANALYST_PROMPT),

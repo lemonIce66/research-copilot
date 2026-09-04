@@ -33,12 +33,17 @@ def supervisor_node(state: AgentState) -> dict:
     has_report = bool(state.get("report", ""))
     has_analysis = bool(state.get("analysis", ""))
     has_research = bool(state.get("research_results", ""))
+    has_context = bool(state.get("context_docs", ""))
 
     if has_report:
         return {"next": "FINISH", "sender": "supervisor", "iteration": iteration}
 
     if has_analysis and not has_report:
         return {"next": "writer", "sender": "supervisor", "iteration": iteration}
+
+    # Uploaded document present: analyze it directly, no web search needed.
+    if has_context and not has_analysis and not has_research:
+        return {"next": "analyst", "sender": "supervisor", "iteration": iteration}
 
     if has_research and not has_analysis:
         return {"next": "analyst", "sender": "supervisor", "iteration": iteration}

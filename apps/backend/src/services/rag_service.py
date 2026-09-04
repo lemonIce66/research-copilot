@@ -67,7 +67,7 @@ def store_chunks(session_id: str, chunks: list, filename: str):
     return len(chunks)
 
 
-def retrieve_documents(session_id: str, query: str, n_results: int = 3) -> str:
+def retrieve_documents(session_id: str, query: str, n_results: int = 15) -> str:
     try:
         collection = chroma_client.get_collection(
             name=f"session_{session_id}",
@@ -76,9 +76,12 @@ def retrieve_documents(session_id: str, query: str, n_results: int = 3) -> str:
     except Exception:
         return ""
 
-    results = collection.query(query_texts=[query], n_results=n_results)
+    # Hash embedding has limited semantic quality, so for the "analyze the
+    # uploaded document" use case we take the document's chunks directly
+    # (in order) instead of relying on query retrieval.
+    result = collection.get(limit=n_results)
 
-    docs = results.get("documents", [[]])[0]
+    docs = result.get("documents", [])
     if not docs:
         return ""
 
